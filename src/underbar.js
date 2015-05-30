@@ -83,6 +83,7 @@
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
     var result = [];
+
     _.each(collection, function(val) {
       if(test(val)) {
         result.push(val);
@@ -104,11 +105,13 @@
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
     var result = [];
+
     _.filter(array, function(val) {
       if(_.indexOf(result, val) === -1) {
         result.push(val);
       }      
     });
+
     return result;
   };
 
@@ -119,6 +122,7 @@
     _.each(collection, function(val) {
       result.push(iterator(val));
     });
+
     return result;
   };
 
@@ -187,13 +191,21 @@
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
+    var callback = iterator || _.identity;
 
+    return _.reduce(collection, function(theTruth, val){
+      return theTruth && Boolean(callback(val));
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
-    // TIP: There's a very clever way to re-use every() here.
+    var callback = iterator || _.identity;
+
+    return !_.every(collection, function(val) {
+      return Boolean(callback(val)) === false;
+    }) === true;
   };
 
 
@@ -216,11 +228,45 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    // My first implementation. Doesn't pass any tests although
+    // it seems to satisfy the requirements.
+
+    // var extensions = Array.prototype.slice.call(arguments).slice(1);
+      
+    // extensions.forEach(function(property) {
+    //   _.each(property, function(value, key) {
+    //     obj[key] = value;
+    //   });
+    // });
+
+    // return obj;
+    
+    _.each(arguments, function(property) {
+      _.each(property, function(value, key) {
+        obj[key] = value;
+      });
+    });
+
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
+  // Maybe add this description from underscore.js to make it clearer
+  // since it's tested for:
+  // Fill in undefined properties in object with the first value 
+  // present in the following list of defaults objects. - RY
+
   _.defaults = function(obj) {
+    _.each(arguments, function(property) {
+      _.each(property, function(value, key) {
+        if(obj[key] === undefined) {
+          obj[key] = value;
+        }
+      });
+    });
+
+    return obj;
   };
 
 
@@ -264,6 +310,16 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var computations = {};
+
+    return function() {
+      var args = Array.prototype.slice.apply(arguments);
+      if(!computations[args]) {
+        computations[args] = func.apply(this, arguments);
+      } 
+
+      return computations[args];
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -273,6 +329,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = Array.prototype.slice.apply(arguments).slice(2);
+
+    setTimeout(function(){
+      func.apply(null, args);
+    }, wait);
   };
 
 
@@ -287,6 +348,24 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var copy = array.slice();
+    var len = copy.length;
+    
+    var sortaRandom = function() {
+      return Math.floor(Math.random() * ((len - 1) - 0 + 1));
+    };
+
+    var swap = function(array, indexOne, indexTwo) {
+      var temp = array[indexOne];
+      array[indexOne] = array[indexTwo];
+      array[indexTwo] = temp;
+    };
+
+    _.each(copy, function(element, index) {
+      swap(copy, sortaRandom(), sortaRandom());
+    });
+
+    return copy;
   };
 
 
