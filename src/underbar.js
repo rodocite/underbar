@@ -228,19 +228,7 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
-    // My first implementation. Doesn't pass any tests although
-    // it seems to satisfy the requirements.
 
-    // var extensions = Array.prototype.slice.call(arguments).slice(1);
-      
-    // extensions.forEach(function(property) {
-    //   _.each(property, function(value, key) {
-    //     obj[key] = value;
-    //   });
-    // });
-
-    // return obj;
-    
     _.each(arguments, function(property) {
       _.each(property, function(value, key) {
         obj[key] = value;
@@ -314,6 +302,7 @@
 
     return function() {
       var args = Array.prototype.slice.apply(arguments);
+      
       if(!computations[args]) {
         computations[args] = func.apply(this, arguments);
       } 
@@ -332,7 +321,7 @@
     var args = Array.prototype.slice.apply(arguments).slice(2);
 
     setTimeout(function(){
-      func.apply(null, args);
+      func.apply(this, args);
     }, wait);
   };
 
@@ -380,6 +369,7 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -395,6 +385,7 @@
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -402,6 +393,21 @@
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    var concatenated = [];
+    var layers = false;
+
+    _.each(nestedArray, function(subArray) {
+      if(Array.isArray(subArray)) {
+        layers = true;
+        _.each(subArray, function(element) {
+          concatenated.push(element);
+        });
+      } else {
+        concatenated.push(subArray);
+      }
+    });
+
+    return !layers || result ? concatenated : _.flatten(concatenated);    
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
